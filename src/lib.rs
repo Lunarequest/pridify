@@ -8,6 +8,8 @@ use image::{
 use js_sys::{ArrayBuffer, Uint8Array};
 use wasm_bindgen::prelude::*;
 
+const RAINBOW: &[u8] = include_bytes!("images/rainbow.png");
+
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
 #[cfg(feature = "wee_alloc")]
@@ -15,10 +17,15 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub fn girls(pfp_bytes: &[u8], flag_bytes: &[u8]) -> Result<Uint8Array, JsError> {
+pub fn girls(pfp_bytes: &[u8], flag: String) -> Result<Uint8Array, JsError> {
     #[cfg(debug_assertions)]
     utils::set_panic_hook();
-
+    let flag_bytes = match flag.as_str() {
+        "rainbow" => RAINBOW,
+        _ => {
+            return Err(JsError::new("unsupported flag"));
+        }
+    };
     let pfp = load_from_memory(pfp_bytes)?;
     let flag = load_from_memory(flag_bytes)?;
     let (width_pfp, hieght_pfp) = pfp.dimensions();
